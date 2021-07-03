@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #define COUNT 10
+#define NUM 3
 
 
 typedef struct llint {
@@ -85,16 +87,120 @@ void print2D(ABin root)
    print2DUtil(root, 0);
 }
 
-int freeAB (ABin a) {
-    int res = 0;
+int nodeCount (ABin a) {
     if (a) {
-        freeAB(a->esq);
-        freeAB(a->dir);
+        return 1 + nodeCount(a->esq) + nodeCount(a->dir);
+    }
+}
+
+//4.a.
+int freeAB (ABin a) {
+    int res = 1;
+    if (a) {
+        res += freeAB(a->esq);
+        res += freeAB(a->dir);
         free(a);
-        res++;
+        return res;
+    }
+}
+
+//4.b.
+int pruneAB (ABin *a, int l) {
+    int res = 0;
+    if (*a) {
+        if (l>0) {
+            res += pruneAB(&(*a)->esq,l-1);
+            res += pruneAB(&(*a)->dir,l-1);
+        }
+        else {return freeAB(*a);}
+    }
+}
+
+int pruneAB_alt (ABin *a, int l) {
+    int res = 0;
+    if (*a) {
+        res += pruneAB(&(*a)->esq,l-1);
+        res += pruneAB(&(*a)->dir,l-1);
+        if (l<=0) {
+            free(*a);
+            *a=0;
+            ++res;
+        }
     }
     return res;
 }
+
+int pruneAB_RF (ABin *a, int l) {
+    int n;
+    if(!(*a)) return 0;
+    
+    if(l == 0) {
+        n = 1 + pruneAB(&((*a)->esq),0) + pruneAB(&((*a)->dir),0);
+        free(*a);
+        (*a) = NULL;
+    }
+    else n = pruneAB(&((*a)->esq),l - 1) + pruneAB(&((*a)->dir),l - 1);
+    
+    return n;
+}
+
+
+typedef struct bloco {
+    int quantos; // elementos ocupados
+    int valores[NUM];
+    struct bloco *prox;
+} Bloco, *LBloco;
+
+
+int quantos (LBloco l) {
+    int i,res=0;
+    while(l!=NULL){
+        res += l->quantos;
+        l=l->prox;
+    }
+    return res;
+}
+
+void imprimeBloco (LBloco l) {
+    int i,c=1;
+    while (l) {
+        printf("BLOCO %d: ",c);
+        for (i=0;i<l->quantos;i++) {
+            printf("%d ",l->valores[i]);
+        }
+        printf("\n");
+        l=l->prox;
+        c+=1;
+    }
+}
+
+void compacta_AUX (int a[], int b[], int n) {
+    int init = NUM-n;
+    printf("init: %d\n",init);
+    int i,j=0;
+    for(i=init;i<NUM;i++){
+        a[i] = b[j];
+        j++;
+    }
+    for(i=0;i<=n;i++){
+        b[i]=b[i+1];
+    }
+    b[i] = '\0';
+}
+
+int compacta (LBloco *l) {
+    LBloco h = *l;
+    while ((*l)->prox) {
+        if ((*l)->quantos!=NUM) {
+            compacta_AUX((*l)->valores,((*l)->prox)->valores,NUM-((*l)->quantos));
+            (*l)->quantos = NUM;
+        }
+        imprimeBloco(h);
+        printf("\n");
+        l = &(*l)->prox;
+    }
+}
+
 
 
 int main () {
@@ -147,7 +253,38 @@ int main () {
     f->valor = 5;f->esq = NULL;f->dir = NULL;
     g->valor = 6;g->esq = NULL;g->dir = NULL;
     print2D(a);
+    int free = freeAB(a);
+    printf("4.a. %d\n",free);
 
+    //printf("4.b. %d\n",pruneAB_RF(&a,2));
 
+    //6.a.
+    LBloco b1 = malloc(sizeof(struct bloco));
+    LBloco b2 = malloc(sizeof(struct bloco));
+    LBloco b3 = malloc(sizeof(struct bloco));
+    int v1[NUM] = {1,2};
+    memcpy(b1->valores,v1, sizeof v1);
+    b1->quantos = 2;
+    b1->prox = b2;
+    int v2[NUM] = {4,5};
+    memcpy(b2->valores,v2, sizeof v2);
+    b2->quantos = 2;
+    b2->prox = b3;
+    int v3[NUM] = {6,7};
+    memcpy(b3->valores,v3, sizeof v3);
+    b3->quantos = 2;
+    b3->prox = NULL;
+    printf("6.a %d\n    ",quantos(b1));
 
+    int t1[NUM] = {1,2};
+    int t2[NUM] = {3,4,5};
+    compacta_AUX(t1,t2,1);
+    int i;
+    for(i=0;i<NUM;i++){printf("%d ",t1[i]);}
+    printf("\n    ");
+    for(i=0;i<NUM;i++){printf("%d ",t2[i]);}
+    printf("\n");
+    //imprimeBloco(b1);
+    compacta(&b1);
+    //imprimeBloco(b1);
 }
