@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Ignore all without extention
+*
+
 # Object files
 *.o
 *.ko
