@@ -193,6 +193,10 @@ int compacta (LBloco *l) {
     while ((*l)->prox) {
         if ((*l)->quantos!=NUM) {
             compacta_AUX((*l)->valores,((*l)->prox)->valores,NUM-((*l)->quantos));
+            if ((*l)->quantos + ((*l)->prox)->quantos == NUM) {
+                LBloco temp = ((*l)->prox)->prox;
+                (*l)->prox = temp;
+            }
             (*l)->quantos = NUM;
         }
         imprimeBloco(h);
@@ -262,29 +266,29 @@ int main () {
     LBloco b1 = malloc(sizeof(struct bloco));
     LBloco b2 = malloc(sizeof(struct bloco));
     LBloco b3 = malloc(sizeof(struct bloco));
-    int v1[NUM] = {1,2};
+    int v1[NUM] = {1};
     memcpy(b1->valores,v1, sizeof v1);
-    b1->quantos = 2;
+    b1->quantos = 1;
     b1->prox = b2;
     int v2[NUM] = {4,5};
     memcpy(b2->valores,v2, sizeof v2);
     b2->quantos = 2;
     b2->prox = b3;
-    int v3[NUM] = {6,7};
+    int v3[NUM] = {6,7,8};
     memcpy(b3->valores,v3, sizeof v3);
-    b3->quantos = 2;
+    b3->quantos = 3;
     b3->prox = NULL;
     printf("6.a %d\n    ",quantos(b1));
 
-    int t1[NUM] = {1,2};
-    int t2[NUM] = {3,4,5};
-    compacta_AUX(t1,t2,1);
+    int t1[NUM] = {1};
+    int t2[NUM] = {3,4};
+    //compacta_AUX(t1,t2,2);
     int i;
-    for(i=0;i<NUM;i++){printf("%d ",t1[i]);}
+    //for(i=0;i<NUM;i++){printf("%d ",t1[i]);}
     printf("\n    ");
-    for(i=0;i<NUM;i++){printf("%d ",t2[i]);}
+    //for(i=0;i<NUM;i++){printf("%d ",t2[i]);}
     printf("\n");
-    //imprimeBloco(b1);
+    imprimeBloco(b1);
     compacta(&b1);
-    //imprimeBloco(b1);
+    imprimeBloco(b1);
 }
