@@ -220,19 +220,22 @@ typedef struct stackC {
 } StackC;
 
 void printStack (StackC *s) {
-    int i;
+    int i,chunk=2;
     printf("chunk 1: ");
     for(i=0;i<s->sp;i++){
-        printf("%d ",(s->valores)[i]);
+        printf("%d ",(s->valores)->vs[i]);
     }
     printf("\n");
     CList h = s->valores;
     h = h->prox;
     while (h) {
+        printf("chunk %d: ",chunk);
         for(i=0;i<MAXc;i++){
-            printf("%d ",(s->valores)[i]);
+            printf("%d ",h->vs[i]);
         }
         printf("\n");
+        h = h->prox;
+        chunk+=1;
     }
 }
 
@@ -243,7 +246,53 @@ int push (StackC *s, int x) {
         chunk->vs[0] = x;
         chunk->prox = s->valores;
         s->valores = chunk;
+        s->sp = 1;
     }
+    else {
+        (s->valores)->vs[s->sp] = x;
+        s->sp += 1;
+    }
+    return 0;
+}
+
+int pop (StackC *s, int *x) {
+    CList val = s->valores;
+    if (s->sp == 1) {
+        *x = val->vs[0];
+        val->vs[0] = '\0';
+        (s->valores) = (s->valores)->prox;
+        s->sp = MAXc;
+        free(val);
+    }
+    else {
+        *x = val->vs[s->sp-1];
+        val->vs[s->sp-1] = '\0';
+        s->sp -= 1;
+    }
+    return 0; 
+}
+
+int size(StackC s) {
+    int res=0;
+    StackC *p = &s;
+    CList val = p->valores;
+    while (val) {
+        res+=1;
+        val = val->prox;
+    } 
+    return res;
+}
+
+void reverse (StackC *s) {
+    CList val = s->valores;
+    CList temp, prev;
+    while (val) {
+        temp = val->prox;
+        val->prox = prev;
+        prev = val;
+        val = temp;
+    }
+    s->valores = prev;
 }
 
 
@@ -331,14 +380,39 @@ int main () {
 
     printf("PARTE B\n1.\n");
     
+    //chunk 1
     CList c1 = malloc(sizeof(struct chunk));
     (c1->vs)[0] = 0;
     (c1->vs)[1] = 1;
     (c1->vs)[2] = 2;
 
+    //chunk 2
+    CList c2 = malloc(sizeof(struct chunk));
+    (c2->vs)[0] = 3;
+    (c2->vs)[1] = 4;
+    (c2->vs)[2] = 5;
+
+    c2->prox = c1;
+
     StackC *stack = malloc(sizeof(struct stackC));
-    stack->valores = c1;
+    stack->valores = c2;
     stack->sp = 3;
+
+    push(stack,5);
+    push(stack,6);
+    push(stack,7);
+
+    int res;
+    int *p = &res;
+    //pop(stack,p);
+    //pop(stack,p);
+    //pop(stack,p);
     
+    printStack(stack);
+    //printf("res: %d\n",res);
+
+    printf("size: %d\n",size(*stack));
+
+    reverse(stack);
     printStack(stack);
 }
