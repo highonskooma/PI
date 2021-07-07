@@ -500,7 +500,7 @@ LInt nivelL (ABin a, int n) {
     }
 }
 
-//36.
+//38.
 int nivelV (ABin a, int n, int v[]) {
     int i=0,esq=0,dir=0;
     if (a) {

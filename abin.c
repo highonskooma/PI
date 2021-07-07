@@ -6,7 +6,7 @@
 typedef struct nodo {
     int valor;
     struct nodo *esq, *dir;
-} * ABin;
+} *ABin;
 
 typedef struct lligada {
     int valor;
@@ -15,10 +15,10 @@ typedef struct lligada {
 
 void imprime (LInt l) {
     LInt h = l;
-    int i=1;
     for(h;h!=NULL;h=h->prox){
-        printf("nodo %d: %d\n",i,h->valor);
+        printf("%d ",h->valor);
     }
+    printf("\n");
 }
 
 // Function to print binary tree in 2D
@@ -83,16 +83,78 @@ void mirror (ABin *a) {
         mirror(&(*a)->dir);
     }
 }
-
+//como a lista está a ser cos ntruida de tras para a frente
+//temos q inverter o metodo de travessia da arvore (dir,root,esq)
 void inorder (ABin a, LInt *l) {
     if (a) {
-        inorder(a->esq,&(*l)->prox);
+        inorder(a->dir,l);
+
         LInt node = malloc(sizeof(struct lligada));
         node->valor = a->valor;
-        (*l)->prox = node;
-        (*l) = node;
-        inorder(a->dir,&(*l)->prox);
+        node->prox = *l;
+        *l = node;
+        
+        inorder(a->esq,l);
     }
+}
+
+//como a lista está a ser cos ntruida de tras para a frente
+//temos q inverter o metodo de travessia da arvore (dir,esq,root)
+void preorder (ABin a,LInt *l) {
+    if (a) {
+        preorder(a->dir,l);
+        preorder(a->esq,l);
+
+        LInt node = malloc(sizeof(struct lligada));
+        node->valor = a->valor;
+        node->prox = *l;
+        *l = node;
+    }
+}
+
+//como a lista está a ser cos ntruida de tras para a frente
+//temos q inverter o metodo de travessia da arvore (root,dir,esq)
+void posorder (ABin a, LInt *l) {
+    if (a) {
+        LInt node = malloc(sizeof(struct lligada));
+        node->valor = a->valor;
+        node->prox = *l;
+        *l = node;
+
+        posorder(a->dir,l);
+        posorder(a->esq,l);
+    }
+}
+
+int depth (ABin a, int x) {
+    int n_esq=0,n_dir=0;
+    if (a) {
+        if (x==a->valor) {return 1;}
+        else {
+            n_esq += depth(a->esq,x);
+            n_dir += depth(a->dir,x);
+            if (n_esq >= n_dir) {return 1 + n_dir;}
+            else {return 1 + n_esq;}
+        }
+    }
+}
+
+int pruneAB (ABin *a, int l){
+	int res=0;
+	//ABin root=(*a);
+	if((*a)){
+	    res+=pruneAB(&((*a)->esq),l-1);
+		res+=pruneAB(&((*a)->dir),l-1);
+		if(l<=0){
+		    free(*a);
+		    res++;
+		    *a=NULL;
+		}
+		else{
+			l--;
+		}
+	}
+	return res;
 }
 
 
@@ -119,10 +181,26 @@ int main() {
     printf("altura: %d\n",altura(a));
     ABin new = clone(a);
 
-    mirror(&new);
-    print2D(new);
+    //mirror(&new);
+    //print2D(new);
 
     LInt l;
     inorder(a,&l);
+    printf("inorder(esq,root,dir): ");
+    imprime(l);
+    LInt r;
+    printf("preorder(root,esq,dir): ");
+    preorder(a,&r);
+    imprime(r);
+    LInt t;
+    printf("postorder(esq,dir,root): ");
+    posorder(a,&t);
+    imprime(t);
+
+    int N = 4;
+    printf("nivel de %d na tree: %d\n",N,depth(a,N));
+
+    printf("prune: %d\n",pruneAB(a,3));
+    print2D(a);
     
 }
