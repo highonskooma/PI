@@ -302,8 +302,72 @@ int depthOrd (ABin a, int x) {
     return j;
 }
 
+int maiorAB (ABin a) {
+    if (a->dir) { maiorAB(a->dir); }
+    else { return a->valor; }
+}
+
+void removeMaiorAB (ABin a) {
+    if (a->dir) {
+        if ((a->dir)->dir) { removeMaiorAB(a->dir); }
+        else { 
+            free(a->dir);
+            (a->dir) = NULL;
+        }
+    }
+}
+
+int quantosMaioresAB (ABin a, int x) {
+    int res = 0;
+    if (a) {
+        if (a->valor > x) {
+            res += quantosMaioresAB(a->esq,x);
+            res += quantosMaioresAB(a->dir,x);
+            printf("res %d\n",res);
+            
+        }
+        if (a->valor <= x) {quantosMaioresAB(a->dir,x);}
+        return 1;
+    }
+}
+
+int quantosMaioresAB2 (ABin a, int x) {
+    if (a) {
+        if (a->valor > x) {
+            return  1 + quantosMaioresAB2(a->esq,x) + quantosMaioresAB2(a->dir,x);
+            
+        }
+        else { quantosMaioresAB2(a->dir,x);}
+        
+    } else{return 0;}
+}
 
 
+void listToBtree (LInt l, ABin *a) {
+    while (l) {
+        addOrd(a,l->valor);
+        l = l->prox;
+    }
+}
+
+int isBST_AUX (ABin a) {
+    if (!a) return 1;
+    else {
+        if ((a->esq)->valor > a->valor) {return 0;}
+        if ((a->dir)->valor < a->valor) {return 0;}
+        return isBST_AUX(a->esq) && isBST_AUX(a->dir);
+    }
+}
+
+int isBST (ABin a) {
+    int esq=0,dir=0;
+    if (!a) return 1;
+    else {
+        esq = isBST(a->esq) && isBST_AUX(a->esq);
+        dir = isBST(a->dir) && isBST_AUX(a->dir);
+        return esq && dir;
+    }
+}
 
 
 int main() {
@@ -330,7 +394,7 @@ int main() {
 
     //mirror(&new);
     //print2D(new);
-
+/*
     LInt l;
     inorder(a,&l);
     printf("inorder(esq,root,dir): ");
@@ -346,7 +410,7 @@ int main() {
     
     int N = 4;
     printf("nivel de %d na tree: %d\n",N,depth(a,N));
-
+*/
     //printf("prune: %d\n",pruneAB(&a,2));
     //print2D(a);
 
@@ -370,11 +434,41 @@ int main() {
     //ABin mirror = cloneMirror(a);
     //print2D(mirror);
 
-    ABin bst = addOrd(&a,4);
-    print2D(bst);
+    //ABin bst = addOrd(&a,4);
+    //print2D(bst);
 
-    printf("lookUp: %d \n",lookUpAB(bst,9));
+    //printf("lookUp: %d \n",lookUpAB(bst,9));
 
-    printf("depth: %d \n",depthOrd(bst,9));
+    //printf("depth: %d \n",depthOrd(bst,9));
+
+    //printf("maior: %d \n",maiorAB(bst));
+
+    //removeMaiorAB(bst);
+    //print2D(bst);
+
+    //int N=3;
+    //printf("maiores que %d: %d\n",N,quantosMaioresAB2(bst,N));
+
+
+    LInt a1 = malloc(sizeof(struct lligada));
+    LInt b1 = malloc(sizeof(struct lligada));
+    LInt c1 = malloc(sizeof(struct lligada));
+
+
+    //LISTA B
+    a1->prox = b1;
+    a1->valor = 2;
+    b1->prox = c1;
+    b1->valor = 6;
+    c1->prox = NULL;
+    c1->valor = 8;
+
+    
+    //int v[10];
+
+    //listToBtree2(a1,&a);
+    //print2D(a);
+
+    printf("%d\n",isBST(a));
 
 }
