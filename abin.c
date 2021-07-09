@@ -21,6 +21,14 @@ void imprime (LInt l) {
     printf("\n");
 }
 
+ABin newNode (int x) {
+    ABin node = malloc(sizeof(struct nodo));
+    node->valor = x;
+    node->esq = NULL;
+    node->dir = NULL;
+    return node;
+}
+
 // Function to print binary tree in 2D
 // It does reverse inorder traversal
 void print2DUtil(ABin root, int space)
@@ -157,6 +165,145 @@ int pruneAB (ABin *a, int l){
 	return res;
 }
 
+ 
+int iguaisAB (ABin a, ABin b) {
+    //printf("a: %d,b: %d\n",a->valor,b->valor);
+    if (a && b) {
+        if (a->valor == b->valor) {
+            return iguaisAB(a->esq,b->esq) && iguaisAB(a->dir,b->dir);
+        }
+        else {return 0;}
+    }
+    if (!a && b || a && !b) {return 0;}
+    return 1;
+}
+
+int dumpAbin (ABin a, int v[], int N) {
+    int res=0;
+    if (a && N>0) {
+        res += dumpAbin(a->esq,v,N-1);
+        v[N] = a->valor;
+        res += dumpAbin(a->dir,v,N-1);
+    }
+    return res + 1;
+}
+
+int somasAcA (ABin a) {
+    int res = 0;
+    if (a) {
+        res = a->valor;
+        res += somasAcA(a->esq) + somasAcA(a->dir);
+        a->valor = res;
+    }
+    return res;
+}
+
+ABin somas (ABin a) {
+    if (a) {
+        a->valor = somasAcA(a);
+    }
+    return a;
+}
+
+int contaFolhas (ABin a) {
+    int res=0;
+    if (a) {
+        if (a->esq || a->dir) {
+            res += contaFolhas(a->esq) + contaFolhas(a->dir);
+            //printf("%d ",a->valor);
+        }
+        else {return 1;}
+    }
+    return res;
+}
+
+ABin cloneMirror (ABin a) {
+    ABin node=NULL;
+    if (a) {
+        node = malloc(sizeof(struct nodo));
+        node->valor = a->valor;
+        node->esq = cloneMirror(a->dir);
+        node->dir = cloneMirror(a->esq);
+    }
+    return node;
+}
+
+ABin addOrd (ABin *a, int x) {
+    if (!(*a)) {return newNode(x);}
+    else {
+        if ((*a)->valor > x) {
+            (*a)->esq = addOrd(&(*a)->esq,x);
+        }
+        if ((*a)->valor < x) {
+            (*a)->dir = addOrd(&(*a)->dir,x);
+        }
+    }
+    return *a;
+}
+
+ABin insert(struct nodo *root, int val)
+{
+    /*
+     * It will handle two cases,
+     * 1. if the tree is empty, return new node in root
+     * 2. if the tree traversal reaches NULL, it will return the new node
+     */
+    if(root == NULL)
+        return newNode(val);
+    /*
+     * if given val is greater than root->key,
+     * we should find the correct place in right subtree and insert the new node
+     */
+    if(root->valor < val)
+        root->dir = insert(root->dir,val);
+    /*
+     * if given val is smallar than root->key,
+     * we should find the correct place in left subtree and insert the new node
+     */
+    else if(root->valor > val)
+        root->esq = insert(root->esq,val);
+    /*
+     * It will handle two cases
+     * (Prevent the duplicate nodes in the tree)
+     * 1.if root->key == val it will straight away return the address of the root node
+     * 2.After the insertion, it will return the original unchanged root's address
+     */
+    return root;
+}
+
+int lookUpAB (ABin a, int x) {
+    int res=0,flag=0;
+    if (a && flag==0) {
+        if (a->valor > x) {
+            res += lookUpAB(a->esq,x);
+            return 1;
+        }
+        if (a->valor < x) {
+            res += lookUpAB(a->dir,x);
+            return 1;
+        }
+        if (a->valor == x) {res++;flag=1;}
+    }
+}
+
+
+int depthOrd (ABin a, int x) {
+    int i=0,j=0;
+    while(a && !i)
+    {
+        if(a->valor>x)
+            a=a->esq;
+        else if(a->valor<x)
+             a=a->dir;
+        else i=1;
+        ++j;
+    }
+    if(!i) j=-1;
+    return j;
+}
+
+
+
 
 
 int main() {
@@ -169,17 +316,17 @@ int main() {
     ABin e = malloc(sizeof(struct nodo));
     ABin f = malloc(sizeof(struct nodo));
     ABin g = malloc(sizeof(struct nodo));
-    a->valor = 0;a->esq = b;a->dir = c;
-    b->valor = 1;b->esq = d;b->dir = e;
-    c->valor = 2;c->esq = f;c->dir = g;
-    d->valor = 3;d->esq = NULL;d->dir = NULL;
-    e->valor = 4;e->esq = NULL;e->dir = NULL;
-    f->valor = 5;f->esq = NULL;f->dir = NULL;
-    g->valor = 6;g->esq = NULL;g->dir = NULL;
+    a->valor = 7;a->esq = b;a->dir = c;
+    b->valor = 3;b->esq = d;b->dir = e;
+    c->valor = 11;c->esq = f;c->dir = g;
+    d->valor = 1;d->esq = NULL;d->dir = NULL;
+    e->valor = 5;e->esq = NULL;e->dir = NULL;
+    f->valor = 9;f->esq = NULL;f->dir = NULL;
+    g->valor = 13;g->esq = NULL;g->dir = NULL;
     print2D(a);
 
     printf("altura: %d\n",altura(a));
-    ABin new = clone(a);
+    //ABin new = clone(a);
 
     //mirror(&new);
     //print2D(new);
@@ -196,11 +343,38 @@ int main() {
     printf("postorder(esq,dir,root): ");
     posorder(a,&t);
     imprime(t);
-
+    
     int N = 4;
     printf("nivel de %d na tree: %d\n",N,depth(a,N));
 
-    printf("prune: %d\n",pruneAB(a,3));
-    print2D(a);
-    
+    //printf("prune: %d\n",pruneAB(&a,2));
+    //print2D(a);
+
+    //new->valor = 9;
+    //print2D(new);
+    //printf("iguais: %d",iguaisAB(a,new));
+
+/*
+    int v[7];
+    int i;
+    dumpAbin(a,v,7);
+    for (i=0;i<7;i++){
+        printf("%d ",v[i]);
+    }
+*/
+    //somas(a);
+    //print2D(a);
+
+    printf("nr de folhas: %d\n",contaFolhas(a));
+
+    //ABin mirror = cloneMirror(a);
+    //print2D(mirror);
+
+    ABin bst = addOrd(&a,4);
+    print2D(bst);
+
+    printf("lookUp: %d \n",lookUpAB(bst,9));
+
+    printf("depth: %d \n",depthOrd(bst,9));
+
 }

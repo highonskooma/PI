@@ -526,12 +526,13 @@ int dumpABin (ABin a, int v[], int N) {
 
         if(i<N){
             v[i] = a->valor;
-            return i+1;
+            i++;
         }
 
         i += dumpABin(a->dir,v,N);
     
     }
+    return i;
 }
 
 int main() {
