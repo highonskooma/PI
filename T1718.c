@@ -218,18 +218,7 @@ void removeMin (ABin a) {
     }
 }
 
-void addToMinHeap (ABin *a, int x) {
-    if ((*a)->esq && (*a)->dir) {
-        int esq = ((*a)->esq)->valor;
-        int dir = ((*a)->dir)->valor;
-        if (esq < x) {
-            addToMinHeap((*a)->esq,x);
-        }
-        if (dir < x) {
-            addToMinHeap((*a)->dir,x);
-        }
-    }
-}
+
 
 
 
